@@ -2,8 +2,11 @@
 
 ## Team Members:
 Timothy Matthies
+
 Greg Phillips
+
 Ally Stauffer
+
 Jay Rajesh
 
 ## Initial Idea:
