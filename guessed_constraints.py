@@ -8,8 +8,8 @@ class PrevConstraint():
         Correct = 2
 
     def __init__(self, words: list[str]) -> None:
-        if len(words) != 16:
-            raise ValueError("Array needs a length of 16!")
+        if len(words) != 16 or len(set(words)) != 16:
+            raise ValueError("Array needs a length of 16 with unique values!")
 
         self.words: dict[str, ArithRef] = {}
         self.solver = Solver()
@@ -29,10 +29,17 @@ class PrevConstraint():
         Example: previously guessed a, b, c, d and told completely wrong, this will return false 
         if a, b, c, e is checked.
         """
-        self.solver.push()
-        self.solver.add(self.words[word1] == self.words[word2],
-                        self.words[word2] == self.words[word3],
-                        self.words[word3] == self.words[word4])
+        if len(set([word1, word2, word3, word4])) != 4:
+            raise ValueError("PrevConstraint.is_possible() needs 4 unique words")
+
+        try:
+            self.solver.push()
+            self.solver.add(self.words[word1] == self.words[word2],
+                            self.words[word2] == self.words[word3],
+                            self.words[word3] == self.words[word4])
+        except:
+            self.solver.pop()
+            raise ValueError("Guessed words need to be in the original set!")
         result = (self.solver.check() == z3sat)
         self.solver.pop()
         return result
@@ -79,6 +86,8 @@ class PrevConstraint():
                 self.words[word2] == self.words[word3],
                 self.words[word3] == self.words[word4]
             )))
+        else:
+            raise ValueError("Not a recognized value of correctness.")
             
 
 
@@ -87,6 +96,8 @@ test1.add_guess('a', 'b', 'c', 'd', PrevConstraint.Correctness.OneOff)
 assert test1.is_possible('a', 'b', 'c', 'd') == False
 assert test1.is_possible('a', 'b', 'c', 'e') == True
 assert test1.is_possible('a', 'b', 'e', 'f') == False
+assert test1.is_possible('e', 'a', 'b', 'c') == True
+assert test1.is_possible('a', 'e', 'c', 'd') == True
 
 test2 = PrevConstraint(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p'])
 test2.add_guess('a', 'b', 'c', 'd', PrevConstraint.Correctness.FullyWrong)
