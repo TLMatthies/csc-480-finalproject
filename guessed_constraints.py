@@ -45,9 +45,6 @@ class PrevConstraint():
         return result
 
     def add_guess(self, word1: str, word2: str, word3: str, word4: str, correctness: Correctness) -> None:
-        if not self.is_possible(word1, word2, word3, word4):
-            raise ValueError("Not a possible guess!")
-        
         if correctness == self.Correctness.Correct:
             self.solver.add(And(self.words[word1] == self.words[word2],
                                 self.words[word2] == self.words[word3],
