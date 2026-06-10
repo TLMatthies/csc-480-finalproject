@@ -12,8 +12,8 @@ def save(dataset, file_name):
     dataset.to_parquet(file_name, index=False)
 
 def main():
-    input_file = "data/Connections_Data.parquet"
-    output_file = "data/Zweights.parquet"
+    input_file = "data/AI_Slop_15000.parquet"
+    output_file = "data/Zweights15k.parquet"
 
     games = load(input_file)
     groupings = games.groupby(["Game ID","Group Name"])

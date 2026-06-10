@@ -2,7 +2,7 @@ import pandas as pd
 from itertools import combinations as comb
 from z3 import Solver, Optimize, Int, If, Sum, sat, unsat
 
-input_file = "data/Zweights.parquet"
+input_file = "data/Zweights15k.parquet"
 zWeights = pd.read_parquet(input_file)
 zWlookup = {(row.Word1, row.Word2): row.Weight
             for row in zWeights.itertuples(index=False)}
