@@ -15,9 +15,12 @@ class ConnectionBot:
             raise ValueError("ConnectionBot must be initialized with a list of unique words 16 long!")
         self.constraints = PrevConstraint(words)
         self.bad_guesses: list[list[str]] = []
-        self.words = words
+        self.words = list(words)
 
     def get_guess(self)->list[str]:
+        if not self.words:
+            raise ValueError("ConnectionBot has no words left to guess.")
+
         current_guess: list[str] = []
         while True:
             single_guess = make_best_connection_guess(self.words, 
@@ -41,6 +44,8 @@ class ConnectionBot:
     def add_guess_result(self, guess: list[str], correctness: Correctness):
         self.constraints.add_guess(guess[0], guess[1], guess[2], guess[3], correctness.value)
         if correctness == self.Correctness.Correct:
+            guessed_words = set(guess)
+            self.words = [word for word in self.words if word not in guessed_words]
             self.bad_guesses.append(guess)
 
 
