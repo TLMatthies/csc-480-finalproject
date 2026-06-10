@@ -2,3 +2,6 @@ z3
 gensim
 numpy
 sentence-transformers
+english-words
+pronouncing
+wordfreq
