@@ -1,4 +1,6 @@
-z3
+z3-solver
 gensim
 numpy
+pandas
+pyarrow
 sentence-transformers
