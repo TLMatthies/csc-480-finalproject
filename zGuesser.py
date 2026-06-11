@@ -111,12 +111,11 @@ class zGuesserAgent(Agent):
 
     zWlookup: dict[tuple[str,str],float] = {}
     agent: zGuesser | None = None
-    input_file = "data/Zweights15k.parquet"
 
-    def __init__(self):
+    def __init__(self, file_name: str):
         cls = type(self)
         if not cls.zWlookup:
-            zWeights = pd.read_parquet(self.input_file)
+            zWeights = pd.read_parquet(file_name)
             cls.zWlookup = {(row.Word1, row.Word2): row.Weight #type:ignore
                         for row in zWeights.itertuples(index=False)}
 

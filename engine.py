@@ -96,3 +96,4 @@ class Engine:
         else:
             self.games[game_id].solved = False
             self.games[game_id].degree = solved_categories
+        agent.teardown_game()
