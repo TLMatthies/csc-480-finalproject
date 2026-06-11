@@ -1,6 +1,10 @@
 from game import Guess
 
 class Agent:
+    def __init__(self):
+        # Agents must implement a constructor with either no arugments or all default arguments
+        pass
+
     def setup_game(self, words: list[str]):
         # This method provides the agent with the 16 words of the connections game
         raise NotImplementedError()
@@ -16,4 +20,9 @@ class Agent:
         # ONE_AWAY
         # INCORRECT
         # ILL_FORMED
+        raise NotImplementedError()
+
+    def teardown_game(self):
+        # This method is called when the agent is no longer required (game has ended)
+        # and can be passed if agent is not memory-hungry
         raise NotImplementedError()

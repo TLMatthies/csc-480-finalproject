@@ -48,6 +48,7 @@ class Game:
             category = self.Category(w, categoryWords)
             self.answers.append(category)
         
+        self.previous_guesses = {}
         combined = len(set().union(*(answer.word_set for answer in self.answers)))
         if combined != 16:
             raise ValueError("All 16 words in a game must be unique.")

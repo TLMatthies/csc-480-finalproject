@@ -10,15 +10,14 @@ class zGuesserAgent(Agent):
         zWlookup: dict[tuple[str, str], float] = {}
         words: list[str] = []
         iWords: dict[str,ArithRef] = {}
+        score_calc: ArithRef
         opt: Optimize = Optimize()
         comb_values: list[tuple[str,str,float]] = []
         solved_groups: list[frozenset[str]] = []
         last_guess: frozenset[str] = frozenset()
 
-        def __init__(self, words: list[str], file_name: str):
-            zWeights = pd.read_parquet(file_name)
-            self.zWlookup = {(row.Word1, row.Word2): row.Weight #type:ignore
-                        for row in zWeights.itertuples(index=False)}
+        def __init__(self, words: list[str], lookup: dict[tuple[str,str], float]):
+            self.zWlookup = lookup
             self.words = words
             self.opt = Optimize()
             if len(self.words) != 16:
@@ -42,6 +41,11 @@ class zGuesserAgent(Agent):
             # Only 4 words in a group
             for i in range(4):
                 self.opt.add(Sum([If(self.iWords[w] == i, 1, 0) for w in self.words]) == 4)
+            # Build score expression here, since it doesn't change between guesses:
+            scores = []
+            for a, b, val in self.comb_values:
+                scores.append(If(self.iWords[a] == self.iWords[b], val, 0))
+            self.score_calc = Sum(scores) #type:ignore
             # This ends all the rules which are independant of guesses
 
         def groupScore(self, words: list[str]) -> float:
@@ -71,11 +75,7 @@ class zGuesserAgent(Agent):
 
         def makeGuess(self) -> list[str]: 
             self.opt.push() 
-            scores = []
-            for a, b, val in self.comb_values:
-                scores.append(If(self.iWords[a] == self.iWords[b], val, 0))
-            
-            self.opt.maximize(Sum(scores))
+            self.opt.maximize(self.score_calc)
 
             if self.opt.check() == sat:
                 model = self.opt.model()
@@ -109,17 +109,29 @@ class zGuesserAgent(Agent):
                 self.opt.pop()
                 return []
 
+    zWlookup: dict[tuple[str,str],float] = {}
+    agent: zGuesser | None = None
     input_file = "data/Zweights15k.parquet"
-    agent: zGuesser
 
-    def __init__(self, file_name: str):
-        self.input_file = file_name
+    def __init__(self):
+        cls = type(self)
+        if not cls.zWlookup:
+            zWeights = pd.read_parquet(self.input_file)
+            cls.zWlookup = {(row.Word1, row.Word2): row.Weight #type:ignore
+                        for row in zWeights.itertuples(index=False)}
 
     def setup_game(self, words: list[str]):
-        self.agent = self.zGuesser(words, self.input_file)
+        self.agent = self.zGuesser(words, self.zWlookup)
 
     def get_guess(self) -> list[str]:
+        if not self.agent:
+            raise ValueError("Cannot get guess before setting up the game.")
         return self.agent.makeGuess()
     
     def store_result(self, result: Guess) -> None :
+        if not self.agent:
+            raise ValueError("Cannot store guess before setting up the game.")
         self.agent.add_result(result)
+    
+    def teardown_game(self):
+        self.agent = None
