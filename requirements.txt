@@ -1,0 +1,9 @@
+z3-solver
+gensim
+numpy
+pandas
+pyarrow
+sentence-transformers
+english-words
+pronouncing
+wordfreq
