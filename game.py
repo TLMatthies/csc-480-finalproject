@@ -42,11 +42,14 @@ class Game:
         if len(words) != 16:
             raise ValueError("Games must contain exactly 16 words.")
         self.words = words
+        self.answers = []
         for w in range(0, 16, 4):
             categoryWords = words[w:w+4]
             category = self.Category(w, categoryWords)
             self.answers.append(category)
-        if len(set().union(*(answer.word_set for answer in self.answers))) != 16:
+        
+        combined = len(set().union(*(answer.word_set for answer in self.answers)))
+        if combined != 16:
             raise ValueError("All 16 words in a game must be unique.")
         if guesses < 1:
             raise ValueError("Don't be mean. You need at least 1 guess.")
@@ -95,4 +98,5 @@ class Game:
         self.previous_guesses[word_set] = guessQuality
         if guessQuality == Guess.CORRECT:
             self.guesses_remaining += 1
+        self.guesses_remaining -= 1
         return guessQuality
